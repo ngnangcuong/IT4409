@@ -1,0 +1,255 @@
+openapi: 3.0.0
+info:
+  description: This is a project for IT4409
+  version: "1.0.0"
+  title: IT4409
+servers:
+  - url: http://localhost:8080/api/v1 
+
+paths:
+  /blog:
+    get:
+      summary: Get all or some blogs 
+      operationId: getBlogs
+      parameters:
+        - name: from
+          in: query
+          schema: 
+            type: integer
+            format: int32
+            default: 0
+          required: false
+        - name: size
+          in: query
+          schema: 
+            type: integer
+            format: int32
+            default: 10
+          required: false
+      responses:
+        200:
+          description: Get blogs successfully
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          description: Bad request from user
+        500:
+          description: Internal Server Error
+    post:
+      summary: Add a new blog 
+      operationId: createBlog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/Blog'
+        required: true
+      responses:
+        201:
+          description: Adding blog successfully
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          description: Bad request from user
+        401:
+          description: Operation without permission
+        500:
+          description: Internal Server Error
+
+  /blog/{id}:
+    get:
+      summary: Get a specific blog
+      operationId: getBlog
+      parameters:
+        - name: id
+          in: path
+          description: blog's id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get a blog successfully
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Blog'
+        404:
+          description: Blog is not existed
+        500:
+          description: Internal Server Error
+        
+    put:
+      summary: Edit a blog
+      operationId: updateBlog
+      parameters:
+        - name: id
+          in: path
+          description: blog's id 
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/requestBodies/Blog'
+      responses:
+        200:
+          description: Editing blog successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          description: Bad request from user
+        401:
+          description: Operation without permission
+        404:
+          description: Blog is not existed
+        500:
+          description: Internal Server Error
+
+  /comment:
+    get:
+      summary: Get comments of a blog
+      parameters:
+        - in: query
+          name: blog_id
+          required: false
+          schema: 
+            type: string
+      responses:
+        200:
+          description: Get comments successfully
+        404:
+          description: Blog has not found
+        500:
+          description: Internal Server Error  
+
+    post:
+      summary: Add a comment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/Comment'
+      responses:
+        201:
+          description: Adding comment successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          description: Bad request from user
+        401:
+          description: Operation without permission
+        500:
+          description: Internal Server Error
+  
+  /comment/{id}:
+    get:
+      summary: Get a comment
+      parameters:
+        - name: id
+          in: path
+          description: comment's id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get a comment successfully
+        401:
+          description: Operation without permission
+        404:
+          description: Comment is not existed
+        500:
+          description: Internal Server Error
+    put:
+      summary: Edit a comment
+      parameters:
+        - name: id
+          in: path
+          description: comment's id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/Comment'
+      responses:
+        200:
+          description: Editing comment successfully
+        400:
+          description: Bad request from user
+        401:
+          description: Operation without permission
+        404:
+          description: Comment is not existed
+        500:
+          description: Internal Server Error
+    
+    delete:
+      summary: Delete a comment
+      parameters:
+        - name: id
+          in: path
+          description: comment's id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Editing comment successfully
+        401:
+          description: Operation without permission
+        404:
+          description: Comment is not existed
+        500:
+          description: Internal Server Error
+components:
+  schemas:
+    SuccessResponse:
+      type: object
+    Blog:
+      type: object
+    Comment:
+      type: object
+  requestBodies:
+    Blog:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                
+    Comment:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+              blog_id:
+                type: string
+                format: uuid
+              parent_id:
+                type: string
+                format: uuid
+                default: null
+              
+
+
+
+  
