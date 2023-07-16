@@ -135,10 +135,7 @@ paths:
       summary: Add a new blog 
       operationId: createBlog
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/requestBodies/CreateBlogRequest'
+        $ref: '#/components/requestBodies/CreateBlogRequest'
         required: true
       responses:
         201:
@@ -208,10 +205,8 @@ paths:
           schema:
             type: string
       requestBody:
-        content:
-          application/json:
-            schema: 
-              $ref: '#/components/requestBodies/UpdateBlogRequest'
+        $ref: '#/components/requestBodies/UpdateBlogRequest'
+        required: true
       responses:
         200:
           description: Editing blog successfully
@@ -278,10 +273,8 @@ paths:
     post:
       summary: Add a comment
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/requestBodies/CreateCommentRequest'
+        $ref: '#/components/requestBodies/CreateCommentRequest'
+        required: true
       responses:
         201:
           description: Adding comment successfully
@@ -353,10 +346,8 @@ paths:
           schema:
             type: string
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/requestBodies/UpdateCommentRequest'
+        $ref: '#/components/requestBodies/UpdateCommentRequest'
+        required: true
       responses:
         200:
           description: Editing comment successfully
