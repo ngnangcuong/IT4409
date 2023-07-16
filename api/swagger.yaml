@@ -4,13 +4,94 @@ info:
   version: "1.0.0"
   title: IT4409
 servers:
-  - url: http://localhost:8080/api/v1 
+  - url: http://localhost:8080/v1 
 
 paths:
+  /auth/oauth/google:
+    get: 
+      summary: get secret code from google
+      operationId: OauthGoogle
+      parameters:
+        - name: code
+          in: query
+          schema:
+            type: string
+          required: true
+      responses:
+        201:
+          description: Create token successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenDetails' 
+        401:
+          description: Operation without permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+        502:
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+    
+  /auth/refresh:
+    post:
+      summary: Refresh token
+      operationId: Refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  description: Coresponding refesh token
+      responses:
+        201:
+          description: Refesh token successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenDetails' 
+        400:
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+  
+  /auth/logout:
+    get:
+      summary: Log out 
+      operationId: Logout 
+      responses:
+        200: 
+          description: Log out successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        401:
+          description: Operation without permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+
   /blog:
     get:
       summary: Get all or some blogs 
-      operationId: getBlogs
+      operationId: GetBlogs
       parameters:
         - name: from
           in: query
@@ -26,17 +107,30 @@ paths:
             format: int32
             default: 10
           required: false
+        - name: sort
+          in: query
+          schema:
+            type: string
+          required: false
       responses:
         200:
           description: Get blogs successfully
           content:
             application/json:
-              schema: 
-                $ref: '#/components/schemas/SuccessResponse'
+              schema:
+                $ref: '#/components/schemas/GetBlogsResponse' 
         400:
           description: Bad request from user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         500:
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
     post:
       summary: Add a new blog 
       operationId: createBlog
@@ -44,7 +138,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/requestBodies/Blog'
+              $ref: '#/components/requestBodies/CreateBlogRequest'
         required: true
       responses:
         201:
@@ -52,13 +146,25 @@ paths:
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: '#/components/schemas/GetBlogResponse'
         400:
           description: Bad request from user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         401:
           description: Operation without permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         500:
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
 
   /blog/{id}:
     get:
@@ -77,11 +183,19 @@ paths:
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/Blog'
+                $ref: '#/components/schemas/GetBlogResponse'
         404:
           description: Blog is not existed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         500:
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         
     put:
       summary: Edit a blog
@@ -97,7 +211,7 @@ paths:
         content:
           application/json:
             schema: 
-              $ref: '#/components/requestBodies/Blog'
+              $ref: '#/components/requestBodies/UpdateBlogRequest'
       responses:
         200:
           description: Editing blog successfully
@@ -107,12 +221,28 @@ paths:
                 $ref: '#/components/schemas/SuccessResponse'
         400:
           description: Bad request from user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         401:
           description: Operation without permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         404:
           description: Blog is not existed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         500:
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
 
   /comment:
     get:
@@ -126,10 +256,24 @@ paths:
       responses:
         200:
           description: Get comments successfully
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetCommentsResponse'
         404:
           description: Blog has not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         500:
-          description: Internal Server Error  
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
 
     post:
       summary: Add a comment
@@ -137,20 +281,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/requestBodies/Comment'
+              $ref: '#/components/requestBodies/CreateCommentRequest'
       responses:
         201:
           description: Adding comment successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: '#/components/schemas/GetCommentResponse'
         400:
           description: Bad request from user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         401:
           description: Operation without permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         500:
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
   
   /comment/{id}:
     get:
@@ -165,12 +321,28 @@ paths:
       responses:
         200:
           description: Get a comment successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCommentResponse'
         401:
           description: Operation without permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         404:
           description: Comment is not existed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         500:
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
     put:
       summary: Edit a comment
       parameters:
@@ -184,18 +356,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/requestBodies/Comment'
+              $ref: '#/components/requestBodies/UpdateCommentRequest'
       responses:
         200:
           description: Editing comment successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
         400:
           description: Bad request from user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         401:
           description: Operation without permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         404:
           description: Comment is not existed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         500:
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
     
     delete:
       summary: Delete a comment
@@ -209,21 +401,267 @@ paths:
       responses:
         200:
           description: Editing comment successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
         401:
           description: Operation without permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         404:
           description: Comment is not existed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
         500:
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
 components:
   schemas:
+    GetBlogsResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: Http code response
+        result:
+          type: array
+          items: 
+            $ref: '#/components/schemas/Blog'
+        info_message:
+          type: array
+          items:
+            type: string
+    
+    GetBlogResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: Http code response
+        result:
+          type: object
+          properties:
+            blog:
+              $ref: '#/components/schemas/Blog'
+            comments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Comment'
+        info_message:
+          type: array
+          items:
+            type: string
+
+    GetCommentResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: Http code response
+        result:
+          $ref: '#/components/schemas/Comment'
+        info_message:
+          type: array
+          items:
+            type: string
+
+    GetCommentsResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: Http code response
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        info_message:
+          type: array
+          items:
+            type: string
+
     SuccessResponse:
       type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: Http code response
+        result:
+          type: object
+          description: returning result
+        info_message:
+          type: array
+          items:
+            type: string
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: Http code response
+        error_message:
+          type: string
+          description: Description about error
+        info_message:
+          type: array
+          items:
+            type: string
     Blog:
       type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        picture:
+          type: string # Define later
+        content:
+          type: string
+        category:
+          type: string
+          enum:
+            - art 
+            - science
+            - technology
+            - cinema
+            - desgin
+            - food
+        user_id:
+          type: string
+          format: uuid
+          description: blog's owner
+        time_created:
+          type: string
+          format: date-time
+        last_updated:
+          type: string
+          format: date-time
     Comment:
       type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        blog_id:
+          type: string
+          format: uuid
+          description: blog that comment belongs to 
+        user_id:
+          type: string
+          format: uuid
+          description: comment's owner
+        parent_id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        time_created:
+          type: string
+          format: date-time
+        last_updated:
+          type: string
+          format: date-time
+    TokenDetails:
+      type: object
+      properties:
+        access_token:
+          type: string
+        access_uuid:
+          type: string
+          format: uuid
+        refresh_token:
+          type: string
+        refresh_uuid:
+          type: string
+          format: uuid
+        at_expires:
+          type: integer
+          format: int64
+        rt_expires:
+          type: integer
+          format: int64
   requestBodies:
+    CreateBlogRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title: 
+                type: string
+              content:
+                type: string
+              category:
+                type: string
+                enum:
+                  - art 
+                  - science
+                  - technology
+                  - cinema
+                  - desgin
+                  - food 
+              picture:
+                type: string
+    UpdateBlogRequest:
+      content:
+        application/json:
+          schema: 
+            type: object
+            properties:
+              title: 
+                type: string
+              content:
+                type: string
+              category:
+                type: string
+                enum:
+                  - art 
+                  - science
+                  - technology
+                  - cinema
+                  - desgin
+                  - food 
+              picture:
+                type: string
+    CreateCommentRequest:
+      content:
+        application/json:
+          schema: 
+            type: object
+            properties:
+              blog_id:
+                type: string
+                format: uuid
+              parent_id:
+                type: string
+                format: uuid
+              content:
+                type: string      
+
+    UpdateCommentRequest:
+      content:
+        application/json:
+          schema: 
+            type: object
+            properties:
+              content:
+                type: string
+
     Blog:
       content:
         application/json:

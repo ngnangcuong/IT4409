@@ -3,7 +3,9 @@ module IT4409
 go 1.18
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-redis/redis/v7 v7.4.1
 	github.com/lib/pq v1.10.9
 	github.com/spf13/viper v1.16.0
 	github.com/twinj/uuid v1.0.0

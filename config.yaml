@@ -5,6 +5,16 @@ database:
     user: postgres
     password: Cuongnguyen2001 
     dbname: IT4409
+  redis:
+    dsn: localhost:6379
 
+oauth:
+  google_oauth_redirect_url: http://localhost:8080/v1/auth/oauth/google
+  google_oauth_client_id: 461077721293-pf1p5im5qu08ta6skupanqp0j8khj4ai.apps.googleusercontent.com
+  google_oauth_client_secret: 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
 app: 
   port: 8080
+  access_secret: 4cC3Ss_s3Cr3t
+  at_expires: 60*15 # 15 min
+  refresh_secret: t3rC3s_hS3rf3r
+  rt_expires: 60*60*24 # 1 day 
