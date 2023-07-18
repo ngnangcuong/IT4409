@@ -19,4 +19,4 @@ app:
   at_expires: 60*15 # 15 min
   refresh_secret: t3rC3s_hS3rf3r
   rt_expires: 60*60*24 # 1 day
-  link_google: https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fv1%2Fauth%2Foauth%2Fgoogle&client_id=461077721293-pf1p5im5qu08ta6skupanqp0j8khj4ai.apps.googleusercontent.com&access_type=offline&response_type=code&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=%2Fprofile 
+  link_google: https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fv1%2Fauth%2Foauth%2Fgoogle&client_id=461077721293-pf1p5im5qu08ta6skupanqp0j8khj4ai.apps.googleusercontent.com&access_type=offline&response_type=code&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=%2Fprofile 

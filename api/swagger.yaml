@@ -107,6 +107,17 @@ paths:
             format: int32
             default: 10
           required: false
+        - name: category
+          in: query
+          schema: 
+            type: string
+            enum:
+              - art 
+              - science
+              - technology
+              - cinema
+              - desgin
+              - food 
         - name: sort
           in: query
           schema:
