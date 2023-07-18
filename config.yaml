@@ -9,12 +9,14 @@ database:
     dsn: localhost:6379
 
 oauth:
-  google_oauth_redirect_url: http://localhost:8080/v1/auth/oauth/google
+  google_oauth_redirect_url: http://localhost:3000/v1/auth/oauth/google
   google_oauth_client_id: 461077721293-pf1p5im5qu08ta6skupanqp0j8khj4ai.apps.googleusercontent.com
   google_oauth_client_secret: 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
 app: 
-  port: 8080
+  frontend_origin: http://localhost:8080
+  port: 3000
   access_secret: 4cC3Ss_s3Cr3t
   at_expires: 60*15 # 15 min
   refresh_secret: t3rC3s_hS3rf3r
-  rt_expires: 60*60*24 # 1 day 
+  rt_expires: 60*60*24 # 1 day
+  link_google: https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fv1%2Fauth%2Foauth%2Fgoogle&client_id=461077721293-pf1p5im5qu08ta6skupanqp0j8khj4ai.apps.googleusercontent.com&access_type=offline&response_type=code&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=%2Fprofile 

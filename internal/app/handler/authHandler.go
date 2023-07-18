@@ -76,6 +76,8 @@ func (a *AuthHandler) OauthGoogle(c *gin.Context) {
 	successResponse, errorResponse := a.userService.CreateUser(c, createUserRequest)
 	if errorResponse != nil {
 		c.JSON(errorResponse.Status, errorResponse)
+		fmt.Println("Here1")
+
 		return
 	}
 
@@ -87,11 +89,15 @@ func (a *AuthHandler) OauthGoogle(c *gin.Context) {
 			ErrorMessage: models.ErrInternalServerError.Error(),
 		}
 		c.JSON(errorResponse.Status, errorResponse)
+		fmt.Println("Here2")
 		return
 	}
 
 	successResponse.Result = tokenDetails
-	c.JSON(successResponse.Status, successResponse)
+	// c.JSON(successResponse.Status, successResponse)
+	// c.SetCookie("token", tokenDetails.AccessToken, viper.GetInt("app.at_expires"), "/", "localhost", false, true)
+	c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s?access_token=%s&refresh_token=%s&access_uuid=%s&refresh_uuid=%s",
+		viper.GetString("app.frontend_origin"), tokenDetails.AccessToken, tokenDetails.RefreshToken, tokenDetails.AccessUuid, tokenDetails.RefreshUuid))
 	return
 }
 

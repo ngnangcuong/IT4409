@@ -38,7 +38,7 @@ func GetConnectionPool() *sql.DB {
 }
 
 func Migration(db *sql.DB) {
-	db.ExecContext(context.Background(), `CREATE TABLE "blogs" IF NOT EXISTS (
+	db.ExecContext(context.Background(), `CREATE TABLE "blogs" (
 		"id" varchar(50) PRIMARY KEY,
 		"user_id" varchar(50),
 		"title" text NOT NULL,
@@ -48,16 +48,17 @@ func Migration(db *sql.DB) {
 		"last_updated" timestamp
 	  );`)
 
-	db.ExecContext(context.Background(), `CREATE TABLE "users" IF NOT EXISTS (
+	db.ExecContext(context.Background(), `CREATE TABLE "users" (
 		"id" varchar(50) PRIMARY KEY,
-		"username" varchar,
-		"email" email UNIQUE NOT NULL,
+		"name" varchar,
+		"email" varchar UNIQUE NOT NULL,
 		"role" varchar,
+		"provider" varchar,
 		"time_created" timestamp,
 		"last_updated" timestamp
 	  );`)
 
-	db.ExecContext(context.Background(), `CREATE TABLE "comments" IF NOT EXISTS (
+	db.ExecContext(context.Background(), `CREATE TABLE "comments" (
 		"id" varchar(50) PRIMARY KEY,
 		"blog_id" varchar(50),
 		"user_id" varchar(50),
@@ -67,7 +68,7 @@ func Migration(db *sql.DB) {
 		"last_updated" timestamp
 	  );`)
 
-	db.ExecContext(context.Background(), `CREATE TABLE "permissions" IF NOT EXISTS (
+	db.ExecContext(context.Background(), `CREATE TABLE "permissions" (
 		"id" integer PRIMARY KEY,
 		"user_id" varchar(50),
 		"permission" varchar(50)
