@@ -67,14 +67,13 @@ func Migration(db *sql.DB) {
 		"time_created" timestamp,
 		"last_updated" timestamp
 	  );`)
-
 	db.ExecContext(context.Background(), `CREATE TABLE "permissions" (
 		"id" serial  PRIMARY KEY,
 		"user_id" varchar(50),
-		"resource_id" varchar(50)
+		"resource_id" varchar(50),
 		"action" varchar
 	  );
-	  `)
+	`)
 
 	db.ExecContext(context.Background(), `ALTER TABLE "blogs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 

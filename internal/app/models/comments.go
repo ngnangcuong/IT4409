@@ -37,3 +37,13 @@ type CreateCommentRequest struct {
 	ParentID string `json:"parent_id"`
 	Content  string `json:"content" binding:"required,min=1"`
 }
+
+type CommentResponse struct {
+	ID            string             `json:"id"`
+	BlogID        string             `json:"blog_id"`
+	User          UserResponse       `json:"user"`
+	ChildComments []*CommentResponse `json:"child_comments"`
+	Content       string             `json:"content"`
+	TimeCreated   time.Time          `json:"time_created"`
+	LastUpdated   time.Time          `json:"last_updated"`
+}

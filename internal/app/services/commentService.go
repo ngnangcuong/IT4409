@@ -4,6 +4,7 @@ import (
 	"IT4409/internal/app/models"
 	comment "IT4409/internal/app/repositories/comment"
 	permission "IT4409/internal/app/repositories/permission"
+	user "IT4409/internal/app/repositories/user"
 	"context"
 	"database/sql"
 	"fmt"
@@ -17,13 +18,15 @@ import (
 type CommentService struct {
 	commentRepo    *comment.CommentRepo
 	permissionRepo *permission.PermissionRepo
+	userRepo       *user.UserRepo
 	db             *sql.DB
 }
 
-func NewCommentService(commentRepo *comment.CommentRepo, permissionRepo *permission.PermissionRepo, db *sql.DB) *CommentService {
+func NewCommentService(commentRepo *comment.CommentRepo, permissionRepo *permission.PermissionRepo, userRepo *user.UserRepo, db *sql.DB) *CommentService {
 	return &CommentService{
 		commentRepo:    commentRepo,
 		permissionRepo: permissionRepo,
+		userRepo:       userRepo,
 		db:             db,
 	}
 }
@@ -63,8 +66,25 @@ func (c *CommentService) GetComment(ctx context.Context, id string) (*models.Suc
 		errorResponse.ErrorMessage = models.ErrInternalServerError.Error()
 		return nil, &errorResponse
 	}
-
-	successResponse.Result = comment
+	user, uErr := c.userRepo.GetUser(ctx, comment.UserID)
+	if uErr != nil {
+		errorResponse.Status = http.StatusInternalServerError
+		errorResponse.ErrorMessage = models.ErrInternalServerError.Error()
+		return nil, &errorResponse
+	}
+	successResponse.Result = models.CommentResponse{
+		ID:            comment.ID,
+		BlogID:        comment.BlogID,
+		ChildComments: nil,
+		Content:       comment.Content,
+		TimeCreated:   comment.TimeCreated,
+		LastUpdated:   comment.LastUpdated,
+		User: models.UserResponse{
+			ID:    user.ID,
+			Name:  user.Name,
+			Email: user.Email,
+		},
+	}
 	successResponse.Status = http.StatusOK
 	return &successResponse, nil
 }
@@ -73,7 +93,7 @@ func (c *CommentService) GetComments(ctx context.Context, blogID string) (*model
 	var successResponse models.SuccessResponse
 	var errorResponse models.ErrorResponse
 
-	commets, err := c.commentRepo.GetCommentBelongToBlog(ctx, blogID)
+	comments, err := c.commentRepo.GetCommentBelongToBlog(ctx, blogID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			errorResponse.Status = http.StatusNotFound
@@ -86,7 +106,7 @@ func (c *CommentService) GetComments(ctx context.Context, blogID string) (*model
 		return nil, &errorResponse
 	}
 
-	successResponse.Result = commets
+	successResponse.Result = comments
 	successResponse.Status = http.StatusOK
 	return &successResponse, nil
 }

@@ -44,7 +44,7 @@ type GetBlogsRequest struct {
 	From     int32  `form:"from" binding:"min=0"`
 	Size     int32  `form:"size" binding:"min=0,max=10"`
 	Sort     string `form:"sort"`
-	Category string `form:"category" binding:"oneof=art science technology cinema desgin food  "`
+	Category string `form:"category" binding:"oneof=art science technology cinema desgin food all"`
 }
 
 type CreateBlogRequest struct {
@@ -63,6 +63,17 @@ type UpdateBlogRequest struct {
 
 // Response for Services
 type GetBlogResponse struct {
-	Blog     Blog      `json:"blog"`
-	Comments []Comment `json:"comments"`
+	Blog     BlogResponse       `json:"blog"`
+	Comments []*CommentResponse `json:"comments"`
+}
+
+type BlogResponse struct {
+	ID          string       `json:"id"`
+	Title       string       `json:"title"`
+	Picture     string       `json:"picture"`
+	Content     string       `json:"content"`
+	Category    string       `json:"category"`
+	User        UserResponse `json:"user"`
+	TimeCreated time.Time    `json:"time_created"`
+	LastUpdated time.Time    `json:"last_updated"`
 }

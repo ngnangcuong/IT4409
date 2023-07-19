@@ -38,8 +38,8 @@ func Run() {
 	userRepo := userRepository.NewUserRepo(postgres)
 	tokenRepo := tokenRepository.NewTokenRepo(redisClient)
 	permissionRepo := permissionRepository.NewPermissionRepo(postgres)
-	blogService := services.NewBlogService(blogRepo, commentRepo, permissionRepo, postgres)
-	commentService := services.NewCommentService(commentRepo, permissionRepo, postgres)
+	blogService := services.NewBlogService(blogRepo, commentRepo, permissionRepo, userRepo, postgres)
+	commentService := services.NewCommentService(commentRepo, permissionRepo, userRepo, postgres)
 	userService := services.NewUserService(userRepo, postgres)
 	tokenService := services.NewTokenService(tokenRepo, viper.GetInt64("app.at_expires"), viper.GetInt64("app.rt_expires"),
 		viper.GetString("app.access_secret"), viper.GetString("app.refresh_secret"))
