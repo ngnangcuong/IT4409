@@ -4,7 +4,7 @@ info:
   version: "1.0.0"
   title: IT4409
 servers:
-  - url: http://localhost:8080/v1 
+  - url: http://localhost:3000/v1 
 
 paths:
   /auth/oauth/google:

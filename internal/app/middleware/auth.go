@@ -26,7 +26,7 @@ func validateToken(tokenString string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("unexpected signing method: %v", _token.Header["alg"])
 		}
 
-		return []byte(viper.GetString("ACCESS_SECRET")), nil
+		return []byte(viper.GetString("app.access_secret")), nil
 	})
 	if err != nil {
 		return nil, err
