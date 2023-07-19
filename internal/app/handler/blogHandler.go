@@ -61,7 +61,8 @@ func (b *BlogHandler) CreateBlog(c *gin.Context) {
 		return
 	}
 
-	successResponse, errorResponse := b.blogService.CreateBlog(c, createBlogRequest)
+	userID := c.GetString("user_id")
+	successResponse, errorResponse := b.blogService.CreateBlog(c, createBlogRequest, userID)
 	if errorResponse != nil {
 		c.JSON(errorResponse.Status, errorResponse)
 		return
@@ -80,8 +81,8 @@ func (b *BlogHandler) UpdateBlog(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
-
-	successResponse, errorResponse := b.blogService.UpdateBlog(c, updateBlogRequest, id)
+	userID := c.GetString("user_id")
+	successResponse, errorResponse := b.blogService.UpdateBlog(c, updateBlogRequest, id, userID)
 	if errorResponse != nil {
 		c.JSON(errorResponse.Status, errorResponse)
 		return

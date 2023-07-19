@@ -5,6 +5,7 @@ import (
 	"IT4409/internal/app/handler"
 	blogRepository "IT4409/internal/app/repositories/blog"
 	commentRepository "IT4409/internal/app/repositories/comment"
+	permissionRepository "IT4409/internal/app/repositories/permission"
 	tokenRepository "IT4409/internal/app/repositories/token"
 	userRepository "IT4409/internal/app/repositories/user"
 	"IT4409/internal/app/services"
@@ -36,8 +37,9 @@ func Run() {
 	commentRepo := commentRepository.NewCommentRepo(postgres)
 	userRepo := userRepository.NewUserRepo(postgres)
 	tokenRepo := tokenRepository.NewTokenRepo(redisClient)
-	blogService := services.NewBlogService(blogRepo, commentRepo, postgres)
-	commentService := services.NewCommentService(commentRepo, postgres)
+	permissionRepo := permissionRepository.NewPermissionRepo(postgres)
+	blogService := services.NewBlogService(blogRepo, commentRepo, permissionRepo, postgres)
+	commentService := services.NewCommentService(commentRepo, permissionRepo, postgres)
 	userService := services.NewUserService(userRepo, postgres)
 	tokenService := services.NewTokenService(tokenRepo, viper.GetInt64("app.at_expires"), viper.GetInt64("app.rt_expires"),
 		viper.GetString("app.access_secret"), viper.GetString("app.refresh_secret"))

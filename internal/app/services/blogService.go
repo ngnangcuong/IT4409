@@ -4,6 +4,7 @@ import (
 	"IT4409/internal/app/models"
 	blogrepo "IT4409/internal/app/repositories/blog"
 	commentrepo "IT4409/internal/app/repositories/comment"
+	permissionrepo "IT4409/internal/app/repositories/permission"
 	"context"
 	"database/sql"
 	"fmt"
@@ -14,27 +15,30 @@ import (
 )
 
 type BlogService struct {
-	blogRepo    *blogrepo.BlogRepo
-	commentRepo *commentrepo.CommentRepo
-	db          *sql.DB
+	blogRepo       *blogrepo.BlogRepo
+	commentRepo    *commentrepo.CommentRepo
+	permissionRepo *permissionrepo.PermissionRepo
+	db             *sql.DB
 }
 
-func NewBlogService(blogRepo *blogrepo.BlogRepo, commentRepo *commentrepo.CommentRepo, db *sql.DB) *BlogService {
+func NewBlogService(blogRepo *blogrepo.BlogRepo, commentRepo *commentrepo.CommentRepo, permissionRepo *permissionrepo.PermissionRepo, db *sql.DB) *BlogService {
 	return &BlogService{
-		blogRepo:    blogRepo,
-		commentRepo: commentRepo,
-		db:          db,
+		blogRepo:       blogRepo,
+		commentRepo:    commentRepo,
+		permissionRepo: permissionRepo,
+		db:             db,
 	}
 }
 
-func (b *BlogService) execTx(ctx context.Context, fn func(*blogrepo.BlogRepo) error) error {
+func (b *BlogService) execTx(ctx context.Context, fn func(*blogrepo.BlogRepo, *permissionrepo.PermissionRepo) error) error {
 	tx, err := b.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return err
 	}
 
 	blogRepoWithTx := b.blogRepo.WithTx(tx)
-	err = fn(blogRepoWithTx)
+	permissionRepoWithTx := b.permissionRepo.WithTx(tx)
+	err = fn(blogRepoWithTx, permissionRepoWithTx)
 	if err != nil {
 		if rErr := tx.Rollback(); rErr != nil {
 			return fmt.Errorf("tx err: %v, rb err: %v", err, rErr)
@@ -85,9 +89,10 @@ func (b *BlogService) GetBlogs(ctx context.Context, getBlogsRequest models.GetBl
 	var errorResponse models.ErrorResponse
 
 	getBlogsParams := models.GetBlogsParams{
-		From: getBlogsRequest.From,
-		Size: getBlogsRequest.Size,
-		Sort: getBlogsRequest.Sort,
+		From:     getBlogsRequest.From,
+		Size:     getBlogsRequest.Size,
+		Sort:     getBlogsRequest.Sort,
+		Category: getBlogsRequest.Category,
 	}
 
 	blogs, err := b.blogRepo.GetBlogs(ctx, getBlogsParams)
@@ -107,7 +112,7 @@ func (b *BlogService) GetBlogs(ctx context.Context, getBlogsRequest models.GetBl
 	return &successResponse, nil
 }
 
-func (b *BlogService) CreateBlog(ctx context.Context, createBlogRequest models.CreateBlogRequest) (*models.SuccessResponse, *models.ErrorResponse) {
+func (b *BlogService) CreateBlog(ctx context.Context, createBlogRequest models.CreateBlogRequest, userID string) (*models.SuccessResponse, *models.ErrorResponse) {
 	var successResponse models.SuccessResponse
 	var errorResponse models.ErrorResponse
 
@@ -117,29 +122,47 @@ func (b *BlogService) CreateBlog(ctx context.Context, createBlogRequest models.C
 		return nil, &errorResponse
 	}
 
-	createBlogParams := models.CreateBlogParams{
-		ID:          uuid.NewV4().String(),
-		Title:       createBlogRequest.Title,
-		Content:     createBlogRequest.Content,
-		Category:    createBlogRequest.Category,
-		UserID:      "",
-		TimeCreated: time.Now(),
-		LastUpdated: time.Now(),
-	}
+	err := b.execTx(ctx, func(br *blogrepo.BlogRepo, pr *permissionrepo.PermissionRepo) error {
+		createBlogParams := models.CreateBlogParams{
+			ID:          uuid.NewV4().String(),
+			Title:       createBlogRequest.Title,
+			Content:     createBlogRequest.Content,
+			Category:    createBlogRequest.Category,
+			UserID:      userID,
+			TimeCreated: time.Now(),
+			LastUpdated: time.Now(),
+		}
 
-	newBlog, err := b.blogRepo.CreateBlog(ctx, createBlogParams)
+		newBlog, err := br.CreateBlog(ctx, createBlogParams)
+		if err != nil {
+			return err
+		}
+
+		createPermissionParams := models.CreatePermissionParams{
+			UserID:     userID,
+			ResourceID: newBlog.ID,
+			Action:     "Update",
+		}
+
+		_, pErr := pr.CreatePermission(ctx, createPermissionParams)
+		if pErr != nil {
+			return pErr
+		}
+
+		successResponse.Result = newBlog
+		successResponse.Status = http.StatusCreated
+		return nil
+	})
+
 	if err != nil {
 		errorResponse.Status = http.StatusInternalServerError
 		errorResponse.ErrorMessage = models.ErrInternalServerError.Error()
 		return nil, &errorResponse
 	}
-
-	successResponse.Result = newBlog
-	successResponse.Status = http.StatusCreated
 	return &successResponse, nil
 }
 
-func (b *BlogService) UpdateBlog(ctx context.Context, updateBlogRequest models.UpdateBlogRequest, id string) (*models.SuccessResponse, *models.ErrorResponse) {
+func (b *BlogService) UpdateBlog(ctx context.Context, updateBlogRequest models.UpdateBlogRequest, id, userID string) (*models.SuccessResponse, *models.ErrorResponse) {
 	var successResponse models.SuccessResponse
 	var errorResponse models.ErrorResponse
 
@@ -149,10 +172,23 @@ func (b *BlogService) UpdateBlog(ctx context.Context, updateBlogRequest models.U
 		return nil, &errorResponse
 	}
 
-	err := b.execTx(ctx, func(br *blogrepo.BlogRepo) error {
+	err := b.execTx(ctx, func(br *blogrepo.BlogRepo, pr *permissionrepo.PermissionRepo) error {
 		blog, err := br.GetBlogForUpdate(ctx, id)
 		if err != nil {
 			return err
+		}
+
+		getPermissionParams := models.GetPermissionParams{
+			UserID:     userID,
+			ResourceID: blog.ID,
+			Action:     "Update",
+		}
+		_, pErr := pr.GetPermission(ctx, getPermissionParams)
+		if pErr != nil {
+			if pErr == sql.ErrNoRows {
+				return models.ErrNoPermission
+			}
+			return pErr
 		}
 
 		updateBlogParams := models.UpdateBlogParams{
@@ -174,6 +210,11 @@ func (b *BlogService) UpdateBlog(ctx context.Context, updateBlogRequest models.U
 			return nil, &errorResponse
 		}
 
+		if err == models.ErrNoPermission {
+			errorResponse.Status = http.StatusUnauthorized
+			errorResponse.ErrorMessage = err.Error()
+			return nil, &errorResponse
+		}
 		errorResponse.Status = http.StatusInternalServerError
 		errorResponse.ErrorMessage = models.ErrInternalServerError.Error()
 		return nil, &errorResponse

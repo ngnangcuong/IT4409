@@ -15,9 +15,10 @@ type Blog struct {
 
 // Params for Repositories
 type GetBlogsParams struct {
-	From int32
-	Size int32
-	Sort string
+	From     int32
+	Size     int32
+	Sort     string
+	Category string
 }
 
 type UpdateBlogParams struct {
@@ -43,7 +44,7 @@ type GetBlogsRequest struct {
 	From     int32  `form:"from" binding:"min=0"`
 	Size     int32  `form:"size" binding:"min=0,max=10"`
 	Sort     string `form:"sort"`
-	Category string `form:"category" binding:"oneof=art science technology cinema desgin food"`
+	Category string `form:"category" binding:"oneof=art science technology cinema desgin food  "`
 }
 
 type CreateBlogRequest struct {

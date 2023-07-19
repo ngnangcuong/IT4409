@@ -112,6 +112,7 @@ paths:
           schema: 
             type: string
             enum:
+              - 
               - art 
               - science
               - technology

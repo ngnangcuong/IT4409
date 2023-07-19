@@ -69,9 +69,10 @@ func Migration(db *sql.DB) {
 	  );`)
 
 	db.ExecContext(context.Background(), `CREATE TABLE "permissions" (
-		"id" integer PRIMARY KEY,
+		"id" serial  PRIMARY KEY,
 		"user_id" varchar(50),
-		"permission" varchar(50)
+		"resource_id" varchar(50)
+		"action" varchar
 	  );
 	  `)
 

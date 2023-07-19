@@ -31,8 +31,8 @@ func (b *BlogRepo) WithTx(tx *sql.Tx) *BlogRepo {
 }
 
 func (b *BlogRepo) GetBlogs(ctx context.Context, getBlogsParams models.GetBlogsParams) ([]models.Blog, error) {
-	query := `SELECT id, user_id, title, content, category, time_created, last_updated FROM blogs OFFSET $1 LIMIT $2`
-	rows, err := b.db.QueryContext(ctx, query, getBlogsParams.From, getBlogsParams.Size)
+	query := `SELECT id, user_id, title, content, category, time_created, last_updated FROM blogs WHERE category ~ $3 OFFSET $1 LIMIT $2 `
+	rows, err := b.db.QueryContext(ctx, query, getBlogsParams.From, getBlogsParams.Size, getBlogsParams.Category)
 	if err != nil {
 		return nil, err
 	}

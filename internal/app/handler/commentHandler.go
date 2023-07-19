@@ -52,7 +52,8 @@ func (c *CommnetHandler) UpdateComment(ctx *gin.Context) {
 	}
 
 	id := ctx.Param("id")
-	successResposnse, errorResponse := c.commentService.UpdateComment(ctx, updateCommentRequest, id)
+	userID := ctx.GetString("user_id")
+	successResposnse, errorResponse := c.commentService.UpdateComment(ctx, updateCommentRequest, id, userID)
 	if errorResponse != nil {
 		ctx.JSON(errorResponse.Status, errorResponse)
 		return
@@ -63,7 +64,8 @@ func (c *CommnetHandler) UpdateComment(ctx *gin.Context) {
 
 func (c *CommnetHandler) DeleteComment(ctx *gin.Context) {
 	id := ctx.Param("id")
-	successResposnse, errorResponse := c.commentService.DeleteComment(ctx, id)
+	userID := ctx.GetString("user_id")
+	successResposnse, errorResponse := c.commentService.DeleteComment(ctx, id, userID)
 	if errorResponse != nil {
 		ctx.JSON(errorResponse.Status, errorResponse)
 		return
@@ -82,7 +84,8 @@ func (c *CommnetHandler) CreateComment(ctx *gin.Context) {
 		ctx.JSON(errorResponse.Status, errorResponse)
 		return
 	}
-	successResposnse, errorResponse := c.commentService.CreateComment(ctx, createCommentRequest)
+	userID := ctx.GetString("user_id")
+	successResposnse, errorResponse := c.commentService.CreateComment(ctx, createCommentRequest, userID)
 	if errorResponse != nil {
 		ctx.JSON(errorResponse.Status, errorResponse)
 		return
