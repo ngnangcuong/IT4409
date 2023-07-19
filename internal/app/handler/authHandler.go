@@ -131,7 +131,21 @@ func (a *AuthHandler) Refresh(c *gin.Context) {
 }
 
 func (a *AuthHandler) Logout(c *gin.Context) {
+	tokenUuid := c.GetString("token_uuid")
+	_, err := a.tokenService.DeleteToken(tokenUuid)
+	if err != nil {
+		errorResponse := models.ErrorResponse{
+			Status:       http.StatusInternalServerError,
+			ErrorMessage: models.ErrInternalServerError.Error(),
+		}
+		c.JSON(errorResponse.Status, errorResponse)
+		return
+	}
+	successResponse := models.SuccessResponse{
+		Status: http.StatusOK,
+	}
 
+	c.JSON(successResponse.Status, successResponse)
 }
 
 func (a *AuthHandler) getGoogleOauthToken(code string) (*models.GoogleOauthToken, error) {

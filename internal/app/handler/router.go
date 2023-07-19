@@ -26,21 +26,19 @@ func InitRouter(blogHandler *BlogHandler, commentHandler *CommnetHandler, authHa
 
 	blogPath := router.Group("/v1/blog")
 	{
-		blogPath.Use(middleware.AuthMiddleware())
-		blogPath.POST("/", blogHandler.CreateBlog)
+		blogPath.POST("/", middleware.AuthMiddleware(), blogHandler.CreateBlog)
 		blogPath.GET("/", blogHandler.GetBlogs)
 		blogPath.GET("/:id", blogHandler.GetBlog)
-		blogPath.PUT("/:id", blogHandler.UpdateBlog)
+		blogPath.PUT("/:id", middleware.AuthMiddleware(), blogHandler.UpdateBlog)
 	}
 
 	commentPath := router.Group("/v1/comment")
 	{
-		commentPath.Use(middleware.AuthMiddleware())
-		commentPath.POST("/", commentHandler.CreateComment)
+		commentPath.POST("/", middleware.AuthMiddleware(), commentHandler.CreateComment)
 		commentPath.GET("/", commentHandler.GetComments)
 		commentPath.GET("/:id", commentHandler.GetComment)
-		commentPath.PUT("/:id", commentHandler.UpdateComment)
-		commentPath.DELETE("/:id", commentHandler.DeleteComment)
+		commentPath.PUT("/:id", middleware.AuthMiddleware(), commentHandler.UpdateComment)
+		commentPath.DELETE("/:id", middleware.AuthMiddleware(), commentHandler.DeleteComment)
 	}
 }
 
