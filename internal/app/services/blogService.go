@@ -203,6 +203,7 @@ func (b *BlogService) CreateBlog(ctx context.Context, createBlogRequest models.C
 			Content:     createBlogRequest.Content,
 			Category:    createBlogRequest.Category,
 			UserID:      userID,
+			Picture:     createBlogRequest.Picture,
 			TimeCreated: time.Now(),
 			LastUpdated: time.Now(),
 		}

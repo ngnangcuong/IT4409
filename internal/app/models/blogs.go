@@ -35,6 +35,7 @@ type CreateBlogParams struct {
 	Content     string
 	Category    string
 	UserID      string
+	Picture     string
 	TimeCreated time.Time
 	LastUpdated time.Time
 }

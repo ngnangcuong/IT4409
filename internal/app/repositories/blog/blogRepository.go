@@ -86,11 +86,11 @@ func (b *BlogRepo) DeleteBlog(ctx context.Context, id string) error {
 }
 
 func (b *BlogRepo) CreateBlog(ctx context.Context, createBlogParams models.CreateBlogParams) (models.Blog, error) {
-	query := `INSERT INTO blogs (id, user_id, title, content, category, time_created, last_updated)
-	VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, user_id, title, content, category, time_created, last_updated`
+	query := `INSERT INTO blogs (id, user_id, title, content, category, picture, time_created, last_updated)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, user_id, title, content, category, picture, time_created, last_updated`
 	row := b.db.QueryRowContext(ctx, query, createBlogParams.ID, createBlogParams.UserID, createBlogParams.Title, createBlogParams.Content,
-		createBlogParams.Category, createBlogParams.TimeCreated, createBlogParams.LastUpdated)
+		createBlogParams.Category, createBlogParams.Picture, createBlogParams.TimeCreated, createBlogParams.LastUpdated)
 	var blog models.Blog
-	err := row.Scan(&blog.ID, &blog.UserID, &blog.Title, &blog.Content, &blog.Category, &blog.TimeCreated, &blog.LastUpdated)
+	err := row.Scan(&blog.ID, &blog.UserID, &blog.Title, &blog.Content, &blog.Category, &blog.Picture, &blog.TimeCreated, &blog.LastUpdated)
 	return blog, err
 }
