@@ -44,7 +44,7 @@ func Migration(db *sql.DB) {
 		"title" text NOT NULL,
 		"category" text,
 		"content" text NOT NULL,
-		"picture" varchar(250),
+		"picture" text,
 		"time_created" timestamp,
 		"last_updated" timestamp
 	  );`)
@@ -55,7 +55,7 @@ func Migration(db *sql.DB) {
 		"email" varchar UNIQUE NOT NULL,
 		"role" varchar,
 		"provider" varchar,
-		"picture" varchar(250),
+		"picture" text,
 		"time_created" timestamp,
 		"last_updated" timestamp
 	  );`)
