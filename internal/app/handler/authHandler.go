@@ -131,7 +131,7 @@ func (a *AuthHandler) Refresh(c *gin.Context) {
 }
 
 func (a *AuthHandler) Logout(c *gin.Context) {
-	tokenUuid := c.GetString("token_uuid")
+	tokenUuid := c.GetString("access_uuid")
 	_, err := a.tokenService.DeleteToken(tokenUuid)
 	if err != nil {
 		errorResponse := models.ErrorResponse{

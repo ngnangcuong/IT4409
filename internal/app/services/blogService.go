@@ -87,13 +87,25 @@ func (b *BlogService) GetBlog(ctx context.Context, id string) (*models.SuccessRe
 	mapCommentResponse := make(map[string][]*models.CommentResponse)
 	var listCommentResponse []*models.CommentResponse
 	for _, comment := range comments {
+		user, err := b.userRepo.GetUser(ctx, comment.UserID)
+		if err != nil {
+			errorResponse.Status = http.StatusInternalServerError
+			errorResponse.ErrorMessage = models.ErrInternalServerError.Error()
+			// return nil, &errorResponse
+		}
 		commentResponse := models.CommentResponse{
 			ID:          comment.ID,
 			BlogID:      comment.BlogID,
 			Content:     comment.Content,
 			TimeCreated: comment.TimeCreated,
 			LastUpdated: comment.LastUpdated,
+			User: models.UserResponse{
+				ID:    user.ID,
+				Name:  user.Name,
+				Email: user.Email,
+			},
 		}
+
 		if comment.ID == comment.ParentID {
 			mapCommentResponse[comment.ID] = []*models.CommentResponse{}
 			listCommentResponse = append(listCommentResponse, &commentResponse)
